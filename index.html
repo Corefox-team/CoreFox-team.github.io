@@ -1,9 +1,903 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru" class="scroll-smooth">
 <head>
-    <title>First Web Page</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CoreFox-team — Инди-игры & VR</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ['Orbitron', 'sans-serif'],
+            body: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            neon: {
+              orange: '#FF6B2B',
+              blue: '#00D4FF',
+              purple: '#A855F7',
+              pink: '#EC4899',
+            },
+            dark: {
+              900: '#0A0A0F',
+              800: '#0F0F1A',
+              700: '#151525',
+              600: '#1A1A2E',
+              500: '#22223A',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: #0A0A0F; color: #E0E0E0; overflow-x: hidden; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #0A0A0F; }
+    ::-webkit-scrollbar-thumb { background: #FF6B2B; border-radius: 3px; }
+
+    /* Neon glow utilities */
+    .glow-orange { text-shadow: 0 0 10px rgba(255,107,43,0.5), 0 0 40px rgba(255,107,43,0.2); }
+    .glow-blue { text-shadow: 0 0 10px rgba(0,212,255,0.5), 0 0 40px rgba(0,212,255,0.2); }
+    .glow-purple { text-shadow: 0 0 10px rgba(168,85,247,0.5), 0 0 40px rgba(168,85,247,0.2); }
+
+    .box-glow-orange { box-shadow: 0 0 15px rgba(255,107,43,0.3), 0 0 50px rgba(255,107,43,0.1); }
+    .box-glow-blue { box-shadow: 0 0 15px rgba(0,212,255,0.3), 0 0 50px rgba(0,212,255,0.1); }
+    .box-glow-purple { box-shadow: 0 0 15px rgba(168,85,247,0.3), 0 0 50px rgba(168,85,247,0.1); }
+
+    /* Hero particles */
+    .particle {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+      animation: float linear infinite;
+    }
+    @keyframes float {
+      0% { transform: translateY(0) translateX(0) scale(1); opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { transform: translateY(-100vh) translateX(var(--drift)) scale(0.3); opacity: 0; }
+    }
+
+    /* Grid overlay */
+    .grid-overlay {
+      background-image:
+        linear-gradient(rgba(255,107,43,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,107,43,0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+
+    /* Scan line */
+    .scanline::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(255,107,43,0.4), transparent);
+      animation: scanline 4s linear infinite;
+    }
+    @keyframes scanline {
+      0% { top: 0; }
+      100% { top: 100%; }
+    }
+
+    /* Card hover */
+    .project-card {
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .project-card:hover {
+      transform: translateY(-8px) scale(1.02);
+    }
+    .project-card:hover .card-image {
+      transform: scale(1.1);
+    }
+    .card-image {
+      transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Gradient border animation */
+    .gradient-border {
+      position: relative;
+      background: #0F0F1A;
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    .gradient-border::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 16px;
+      padding: 1px;
+      background: linear-gradient(135deg, #FF6B2B, #A855F7, #00D4FF, #FF6B2B);
+      background-size: 300% 300%;
+      animation: gradientMove 4s ease infinite;
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+    }
+    @keyframes gradientMove {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* Fade in animations */
+    .fade-up {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .fade-up.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .fade-left {
+      opacity: 0;
+      transform: translateX(-40px);
+      transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .fade-left.visible {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    .fade-right {
+      opacity: 0;
+      transform: translateX(40px);
+      transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .fade-right.visible {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    /* VR headset animation */
+    @keyframes pulse3d {
+      0%, 100% { transform: perspective(600px) rotateY(0deg) rotateX(0deg); }
+      25% { transform: perspective(600px) rotateY(5deg) rotateX(2deg); }
+      75% { transform: perspective(600px) rotateY(-5deg) rotateX(-2deg); }
+    }
+    .vr-pulse { animation: pulse3d 6s ease-in-out infinite; }
+
+    /* Typing cursor */
+    .typing-cursor::after {
+      content: '|';
+      animation: blink 1s step-end infinite;
+      color: #FF6B2B;
+    }
+    @keyframes blink {
+      50% { opacity: 0; }
+    }
+
+    /* Nav blur */
+    .nav-blur {
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+    }
+
+    /* Stat counter */
+    .stat-value {
+      background: linear-gradient(135deg, #FF6B2B, #EC4899);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Mobile menu */
+    .mobile-menu {
+      transform: translateX(100%);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .mobile-menu.open {
+      transform: translateX(0);
+    }
+
+    /* Team card flip */
+    .team-card-inner {
+      transition: transform 0.6s;
+      transform-style: preserve-3d;
+    }
+    .team-card:hover .team-card-inner {
+      transform: rotateY(180deg);
+    }
+    .team-card-front, .team-card-back {
+      backface-visibility: hidden;
+    }
+    .team-card-back {
+      transform: rotateY(180deg);
+    }
+
+    /* Custom button */
+    .btn-neon {
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+    .btn-neon::before {
+      content: '';
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 0; height: 0;
+      background: rgba(255,255,255,0.1);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      transition: width 0.6s ease, height 0.6s ease;
+    }
+    .btn-neon:hover::before {
+      width: 300px;
+      height: 300px;
+    }
+
+    /* Marquee */
+    .marquee-track {
+      display: flex;
+      animation: marquee 30s linear infinite;
+    }
+    @keyframes marquee {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    /* Toast */
+    .toast {
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  </style>
 </head>
-<body>
-    Hello World!
+<body class="font-body">
+
+  <!-- Navigation -->
+  <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 transition-all duration-500">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16 md:h-20">
+        <!-- Logo -->
+        <a href="#hero" class="flex items-center gap-2 group">
+          <div class="w-9 h-9 md:w-10 md:h-10 rounded-lg bg-gradient-to-br from-neon-orange to-neon-purple flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+            <i data-lucide="fox" class="w-5 h-5 md:w-6 md:h-6 text-white"></i>
+          </div>
+          <span class="font-display text-lg md:text-xl font-bold text-white">Core<span class="text-neon-orange">Fox</span></span>
+        </a>
+        <!-- Desktop links -->
+        <div class="hidden md:flex items-center gap-8">
+          <a href="#about" class="text-gray-400 hover:text-neon-orange transition-colors duration-300 text-sm font-medium">О нас</a>
+          <a href="#projects" class="text-gray-400 hover:text-neon-orange transition-colors duration-300 text-sm font-medium">Проекты</a>
+          <a href="#vr" class="text-gray-400 hover:text-neon-orange transition-colors duration-300 text-sm font-medium">VR</a>
+          <a href="#team" class="text-gray-400 hover:text-neon-orange transition-colors duration-300 text-sm font-medium">Команда</a>
+          <a href="#contact" class="btn-neon px-5 py-2 bg-gradient-to-r from-neon-orange to-neon-purple rounded-full text-white text-sm font-semibold hover:shadow-lg hover:shadow-neon-orange/25">Связаться</a>
+        </div>
+        <!-- Mobile burger -->
+        <button id="burger-btn" class="md:hidden text-white p-2">
+          <i data-lucide="menu" class="w-6 h-6"></i>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Mobile menu -->
+  <div id="mobile-menu" class="mobile-menu fixed inset-y-0 right-0 w-72 bg-dark-800/95 nav-blur z-50 p-8 flex flex-col gap-6 md:hidden">
+    <button id="close-menu" class="self-end text-white p-2">
+      <i data-lucide="x" class="w-6 h-6"></i>
+    </button>
+    <a href="#about" class="mobile-link text-gray-300 hover:text-neon-orange text-lg font-medium transition-colors">О нас</a>
+    <a href="#projects" class="mobile-link text-gray-300 hover:text-neon-orange text-lg font-medium transition-colors">Проекты</a>
+    <a href="#vr" class="mobile-link text-gray-300 hover:text-neon-orange text-lg font-medium transition-colors">VR</a>
+    <a href="#team" class="mobile-link text-gray-300 hover:text-neon-orange text-lg font-medium transition-colors">Команда</a>
+    <a href="#contact" class="btn-neon mt-4 px-5 py-3 bg-gradient-to-r from-neon-orange to-neon-purple rounded-full text-white text-center font-semibold">Связаться</a>
+  </div>
+
+  <!-- Hero Section -->
+  <section id="hero" class="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <!-- Background layers -->
+    <div class="absolute inset-0 bg-gradient-to-b from-dark-900 via-dark-800 to-dark-900"></div>
+    <div class="absolute inset-0 grid-overlay"></div>
+    <div id="particles" class="absolute inset-0 pointer-events-none"></div>
+
+    <!-- Gradient orbs -->
+    <div class="absolute top-1/4 -left-32 w-96 h-96 bg-neon-orange/10 rounded-full blur-[120px] animate-pulse"></div>
+    <div class="absolute bottom-1/4 -right-32 w-96 h-96 bg-neon-purple/10 rounded-full blur-[120px] animate-pulse" style="animation-delay: 2s;"></div>
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-neon-blue/5 rounded-full blur-[150px]"></div>
+
+    <!-- Content -->
+    <div class="relative z-10 text-center px-4 max-w-5xl mx-auto">
+      <div class="fade-up mb-6">
+        <span class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-neon-orange/30 bg-neon-orange/5 text-neon-orange text-sm font-medium">
+          <i data-lucide="gamepad-2" class="w-4 h-4"></i>
+          Инди-игры & VR разработка
+        </span>
+      </div>
+
+      <h1 class="fade-up font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-white leading-tight mb-6" style="transition-delay: 0.1s;">
+        CORE<span class="text-neon-orange glow-orange">FOX</span>
+        <br>
+        <span class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-neon-blue via-neon-purple to-neon-pink bg-clip-text text-transparent">— TEAM</span>
+      </h1>
+
+      <p class="fade-up text-lg md:text-xl text-gray-400 max-w-2xl mx-auto mb-10 leading-relaxed" style="transition-delay: 0.2s;">
+        Создаём миры, в которые хочется погружаться. Инди-игры с душой и VR-приложения, раздвигающие границы реальности.
+      </p>
+
+      <div class="fade-up flex flex-col sm:flex-row items-center justify-center gap-4" style="transition-delay: 0.3s;">
+        <a href="#projects" class="btn-neon px-8 py-4 bg-gradient-to-r from-neon-orange to-neon-purple rounded-full text-white font-semibold text-lg hover:shadow-xl hover:shadow-neon-orange/25 flex items-center gap-2">
+          <i data-lucide="rocket" class="w-5 h-5"></i>
+          Наши проекты
+        </a>
+        <a href="#about" class="px-8 py-4 border border-gray-600 hover:border-neon-blue/50 rounded-full text-gray-300 hover:text-neon-blue font-semibold text-lg transition-all duration-300 flex items-center gap-2">
+          <i data-lucide="info" class="w-5 h-5"></i>
+          Узнать больше
+        </a>
+      </div>
+
+      <!-- Scroll indicator -->
+      <div class="fade-up absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-gray-500 animate-bounce" style="transition-delay: 0.5s;">
+        <span class="text-xs tracking-widest uppercase">Scroll</span>
+        <i data-lucide="chevron-down" class="w-4 h-4"></i>
+      </div>
+    </div>
+  </section>
+
+  <!-- Marquee Section -->
+  <div class="relative bg-dark-800 border-y border-dark-500 py-4 overflow-hidden">
+    <div class="marquee-track">
+      <div class="flex items-center gap-8 text-gray-500 font-display text-sm tracking-widest uppercase whitespace-nowrap px-4">
+        <span>🎮 Unity</span><span>•</span>
+        <span>🥽 Unreal Engine</span><span>•</span>
+        <span>🌐 WebXR</span><span>•</span>
+        <span>🎯 Indie Games</span><span>•</span>
+        <span>🔮 VR / AR</span><span>•</span>
+        <span>💻 Mobile</span><span>•</span>
+        <span>🎨 3D Art</span><span>•</span>
+        <span>🔊 Sound Design</span><span>•</span>
+        <span>🎮 Unity</span><span>•</span>
+        <span>🥽 Unreal Engine</span><span>•</span>
+        <span>🌐 WebXR</span><span>•</span>
+        <span>🎯 Indie Games</span><span>•</span>
+        <span>🔮 VR / AR</span><span>•</span>
+        <span>💻 Mobile</span><span>•</span>
+        <span>🎨 3D Art</span><span>•</span>
+        <span>🔊 Sound Design</span><span>•</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- About Section -->
+  <section id="about" class="relative py-20 md:py-32">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid md:grid-cols-2 gap-12 md:gap-16 items-center">
+        <!-- Left: Image / Visual -->
+        <div class="fade-left relative">
+          <div class="relative rounded-2xl overflow-hidden aspect-square max-w-md mx-auto">
+            <img src="http://static.photos/technology/640x360/42" alt="CoreFox Team" class="w-full h-full object-cover rounded-2xl">
+            <div class="absolute inset-0 bg-gradient-to-t from-dark-900/80 via-transparent to-transparent"></div>
+          </div>
+          <!-- Floating badge -->
+          <div class="absolute -bottom-4 -right-4 md:bottom-8 md:-right-8 bg-dark-700 border border-neon-orange/20 rounded-2xl p-4 box-glow-orange">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-neon-orange to-neon-purple flex items-center justify-center">
+                <i data-lucide="trophy" class="w-6 h-6 text-white"></i>
+              </div>
+              <div>
+                <div class="font-display text-2xl font-bold stat-value" data-count="12">0</div>
+                <div class="text-gray-400 text-sm">Наград</div>
+              </div>
+            </div>
+          </div>
+          <!-- Decorative corner -->
+          <div class="absolute -top-4 -left-4 w-24 h-24 border-t-2 border-l-2 border-neon-orange/30 rounded-tl-2xl"></div>
+        </div>
+
+        <!-- Right: Text -->
+        <div class="fade-right">
+          <span class="text-neon-orange font-display text-sm tracking-widest uppercase mb-4 block">О компании</span>
+          <h2 class="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6 leading-tight">
+            Мы создаём <span class="text-neon-orange glow-orange">миры</span>, а не просто игры
+          </h2>
+          <p class="text-gray-400 leading-relaxed mb-6">
+            CoreFox-team — это команда увлечённых разработчиков, художников и дизайнеров, которые верят в силу интерактивных впечатлений. Мы специализируемся на инди-играх с уникальной атмосферой и VR-приложениях, которые меняют восприятие пространства.
+          </p>
+          <p class="text-gray-400 leading-relaxed mb-8">
+            Каждый наш проект — это эксперимент на стыке искусства и технологий. Мы не идём проторёнными путями, мы создаём свои.
+          </p>
+
+          <!-- Stats -->
+          <div class="grid grid-cols-3 gap-6">
+            <div class="text-center md:text-left">
+              <div class="font-display text-3xl md:text-4xl font-bold stat-value" data-count="8">0</div>
+              <div class="text-gray-500 text-sm mt-1">Лет опыта</div>
+            </div>
+            <div class="text-center md:text-left">
+              <div class="font-display text-3xl md:text-4xl font-bold stat-value" data-count="15">0</div>
+              <div class="text-gray-500 text-sm mt-1">Проектов</div>
+            </div>
+            <div class="text-center md:text-left">
+              <div class="font-display text-3xl md:text-4xl font-bold stat-value" data-count="500">0</div>
+              <div class="text-gray-500 text-sm mt-1">K+ загрузок</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Projects Section -->
+  <section id="projects" class="relative py-20 md:py-32">
+    <div class="absolute inset-0 bg-gradient-to-b from-transparent via-dark-800/50 to-transparent"></div>
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <!-- Header -->
+      <div class="fade-up text-center mb-16">
+        <span class="text-neon-orange font-display text-sm tracking-widest uppercase mb-4 block">Портфолио</span>
+        <h2 class="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4">
+          Наши <span class="bg-gradient-to-r from-neon-orange to-neon-purple bg-clip-text text-transparent">проекты</span>
+        </h2>
+        <p class="text-gray-400 max-w-xl mx-auto">Каждая игра — это история, каждый VR-опыт — новое измерение</p>
+      </div>
+
+      <!-- Filter buttons -->
+      <div class="fade-up flex flex-wrap justify-center gap-3 mb-12">
+        <button class="filter-btn active px-5 py-2 rounded-full text-sm font-medium transition-all duration-300" data-filter="all">Все</button>
+        <button class="filter-btn px-5 py-2 rounded-full text-sm font-medium transition-all duration-300" data-filter="indie">Инди-игры</button>
+        <button class="filter-btn px-5 py-2 rounded-full text-sm font-medium transition-all duration-300" data-filter="vr">VR</button>
+        <button class="filter-btn px-5 py-2 rounded-full text-sm font-medium transition-all duration-300" data-filter="app">Приложения</button>
+      </div>
+
+      <!-- Projects grid -->
+      <div id="projects-grid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Project 1 -->
+        <div class="project-card gradient-border group" data-category="indie">
+          <div class="relative overflow-hidden rounded-2xl">
+            <img src="http://static.photos/gaming/640x360/1" alt="Shadow Depths" class="card-image w-full h-52 object-cover">
+            <div class="absolute inset-0 bg-gradient-to-t from-dark-900 via-dark-900/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+              <div>
+                <span class="text-neon-orange text-xs font-medium uppercase tracking-wider">Инди-игра</span>
+                <h3 class="text-white font-display font-bold text-lg mt-1">Shadow Depths</h3>
+              </div>
+            </div>
+            <div class="absolute top-4 right-4 px-3 py-1 bg-neon-orange/20 backdrop-blur-sm rounded-full text-neon-orange text-xs font-semibold">Hit</div>
+          </div>
+          <div class="p-5">
+            <h3 class="text-white font-display font-bold text-lg mb-2">Shadow Depths</h3>
+            <p class="text-gray-400 text-sm mb-4 line-clamp-2">Атмосферный метроидвания с уникальной механикой теней. Исследуй тёмные подземелья, где тьма — и враг, и союзник.</p>
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-1 bg-dark-500 rounded text-xs text-gray-300">Unity</span>
+              <span class="px-2 py-1 bg-dark-500 rounded text-xs text-gray-300">2D</span>
+              <span class="px-2 py-1 bg-dark-500 rounded text-xs text-gray-300">Steam</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Project 2 -->
+        <div class="project-card gradient-border group" data-category="vr">
+          <div class="relative overflow-hidden rounded-2xl">
+            <img src="http://static.photos/aerial/640x360/2" alt="NeonVerse VR" class="card-image w-full h-52 object-cover">
+            <div class="absolute inset-0 bg-gradient-to-t from-dark-900 via-dark-900/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+              <div>
+                <span class="text-neon-blue text-xs font-medium uppercase tracking-wider">VR-приложение</span>
+                <h3 class="text-white font-display font-bold text-lg mt-1">NeonVerse VR</h3>
+              </div>
+            </div>
+            <div class="absolute top-4 right-4 px-3 py-1 bg-neon-blue/20 backdrop-blur-sm rounded-full text-neon-blue text-xs font-semibold">New</div>
+          </div>
+          <div class="p-5">
+            <h3 class="text-white font-display font-bold text-lg mb-2">NeonVerse VR</h3>
+            <p class="text-gray-400 text-sm mb-4 line-clamp-2">Социальная VR-платформа в неоновом киберпанк-мире. Создавай, общайся, исследуй бесконечные пространства.</p>
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-1 bg-dark-500 rounded text-xs text-gray-300">Unreal</span>
+              <span class="px-2 py-1 bg-dark-500 rounded text-xs text-gray-300">VR</span>
+              <span class="px-2 py-1 bg-dark-500 rounded text-xs text-gray-300">Meta Quest</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Project 3 -->
+        <div class="project-card gradient-border group" data-category="indie">
+          <div class="relative overflow-hidden rounded-2xl">
+            <img src="http://static.photos/nature/640x360/3" alt="Frost Hollow" class="card-image w-full h-52 object-cover">
+            <div class="absolute inset-0 bg-gradient-to-t from-dark-900 via-dark-900/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+              <div>
+                <span class="text-neon-orange text-xs font-medium uppercase tracking-wider">Инди-игра</span>
+                <h3 class="text-white font-display font-bold text-lg mt-1">Frost Hollow</h3>
+              </div>
+            </div>
+          </div>
+          <div class="p-5">
+            <h3 class="text-white font-display font-bold text-lg mb-2">Frost Hollow</h3>
+            <p class="text-gray-400 text-sm mb-4 line-clamp-2">Выживание в заснеженном мире с элементами хоррора. Каждый шаг может быть последним.</p>
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-1 bg-dark-500 rounded text-xs text-gray-300">Unity</span>
+              <span class="px-2 py-1 bg-dark-500 rounded text-xs text-gray-300">3D</span>
+              <span class="px-2 py-1 bg-dark-500 rounded text-xs text-gray-300">PC / Console</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Project 4 -->
+        <div class="project-card gradient-border group" data-category="vr">
+          <div class="relative overflow-hidden rounded-2xl">
+            <img src="http://static.photos/abstract/640x360/4" alt="MindScape VR" class="card-image w-full h-52 object-cover">
+            <div class="absolute inset-0 bg-gradient-to-t from-dark-900 via-dark-900/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+              <div>
+                <span class="text-neon-purple text-xs font-medium uppercase tracking-wider">VR-опыт</span>
+                <h3 class="text-white font-display font-bold text-lg mt-1">MindScape VR</h3>
+              </div>
+            </div>
+          </div>
+          <div class="p-5">
+            <h3 class="text-white font-display font-bold text-lg mb-2">MindScape VR</h3>
+            <p class="text-gray-400 text-sm mb-4 line-clamp-2">Медитативный VR-опыт для релаксации и осознанности. Погружение в сюрреалистичные пейзажи подсознания.</p>
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-1 bg-dark-500 rounded text-xs text-gray-300">Unity</span>
+              <span class="px-2 py-1 bg-dark-500 rounded text-xs text-gray-300">VR</span>
+              <span class="px-2 py-1 bg-dark-500 rounded text-xs text-gray-300">Wellness</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Project 5 -->
+        <div class="project-card gradient-border group" data-category="indie">
+          <div class="relative overflow-hidden rounded-2xl">
+            <img src="http://static.photos/vintage/640x360/5" alt="Pixel Drift" class="card-image w-full h-52 object-cover">
+            <div class="absolute inset-0 bg-gradient-to-t from-dark-900 via-dark-900/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+              <div>
+                <span class="text-neon-orange text-xs font-medium uppercase tracking-wider">Инди-игра</span>
+                <h3 class="text-white font-display font-bold text-lg mt-1">Pixel Drift</h3>
+              </div>
+            </div>
+          </div>
+          <div class="p-5">
+            <h3 class="text-white font-display font-bold text-lg mb-2">Pixel Drift</h3>
+            <p class="text-gray-400 text-sm mb-4 line-clamp-2">Ретро-гонки с процедурной генерацией трасс. Пиксельная эстетика, синтезаторная музыка, чистый драйв.</p>
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-1 bg-dark-500 rounded text-xs text-gray-300">Godot</span>
+              <span class="px-2 py-1 bg-dark-500 rounded text-xs text-gray-300">Pixel Art</span>
+              <span class="px-2 py-1 bg-dark-500 rounded text-xs text-gray-300">Mobile</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Project 6 -->
+        <div class="project-card gradient-border group" data-category="app">
+          <div class="relative overflow-hidden rounded-2xl">
+            <img src="http://static.photos/workspace/640x360/6" alt="CoreForge SDK" class="card-image w-full h-52 object-cover">
+            <div class="absolute inset-0 bg-gradient-to-t from-dark-900 via-dark-900/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+              <div>
+                <span class="text-neon-pink text-xs font-medium uppercase tracking-wider">Инструмент</span>
+                <h3 class="text-white font-display font-bold text-lg mt-1">CoreForge SDK</h3>
+              </div>
+            </div>
+          </div>
+          <div class="p-5">
+            <h3 class="text-white font-display font-bold text-lg mb-2">CoreForge SDK</h3>
+            <p class="text-gray-400 text-sm mb-4 line-clamp-2">Наш SDK для быстрой разработки VR-приложений. Ускоряет прототипирование в 3 раза.</p>
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-1 bg-dark-500 rounded text-xs text-gray-300">Open Source</span>
+              <span class="px-2 py-1 bg-dark-500 rounded text-xs text-gray-300">C#</span>
+              <span class="px-2 py-1 bg-dark-500 rounded text-xs text-gray-300">Unity</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- VR Section -->
+  <section id="vr" class="relative py-20 md:py-32 overflow-hidden">
+    <!-- Background effects -->
+    <div class="absolute inset-0">
+      <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-neon-blue/5 via-transparent to-neon-purple/5"></div>
+    </div>
+
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid md:grid-cols-2 gap-12 md:gap-16 items-center">
+        <!-- Text content -->
+        <div class="fade-left order-2 md:order-1">
+          <span class="text-neon-blue font-display text-sm tracking-widest uppercase mb-4 block">Виртуальная реальность</span>
+          <h2 class="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6 leading-tight">
+            Границы <span class="text-neon-blue glow-blue">реальности</span> — лишь начало
+          </h2>
+          <p class="text-gray-400 leading-relaxed mb-8">
+            Мы создаём VR-приложения, которые стирают грань между цифровым и физическим миром. От игровых experienсов до образовательных платформ и корпоративных решений.
+          </p>
+
+          <!-- Features list -->
+          <div class="space-y-4 mb-8">
+            <div class="flex items-start gap-4">
+              <div class="w-10 h-10 shrink-0 rounded-lg bg-neon-blue/10 flex items-center justify-center">
+                <i data-lucide="eye" class="w-5 h-5 text-neon-blue"></i>
+              </div>
+              <div>
+                <h4 class="text-white font-semibold mb-1">Полное погружение</h4>
+                <p class="text-gray-400 text-sm">6DoF взаимодействие, haptic feedback и пространственный звук</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-4">
+              <div class="w-10 h-10 shrink-0 rounded-lg bg-neon-purple/10 flex items-center justify-center">
+                <i data-lucide="users" class="w-5 h-5 text-neon-purple"></i>
+              </div>
+              <div>
+                <h4 class="text-white font-semibold mb-1">Мультиплеер</h4>
+                <p class="text-gray-400 text-sm">Социальные VR-пространства с аватарами и голосовым чатом</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-4">
+              <div class="w-10 h-10 shrink-0 rounded-lg bg-neon-orange/10 flex items-center justify-center">
+                <i data-lucide="smartphone" class="w-5 h-5 text-neon-orange"></i>
+              </div>
+              <div>
+                <h4 class="text-white font-semibold mb-1">Кросс-платформа</h4>
+                <p class="text-gray-400 text-sm">Meta Quest, SteamVR, PlayStation VR, Apple Vision Pro</p>
+              </div>
+            </div>
+          </div>
+
+          <a href="#contact" class="btn-neon inline-flex items-center gap-2 px-6 py-3 bg-neon-blue/10 border border-neon-blue/30 rounded-full text-neon-blue font-semibold hover:bg-neon-blue/20 transition-all duration-300">
+            <i data-lucide="headphones" class="w-5 h-5"></i>
+            Обсудить VR-проект
+          </a>
+        </div>
+
+        <!-- VR Visual -->
+        <div class="fade-right order-1 md:order-2 flex justify-center">
+          <div class="relative">
+            <!-- VR Headset visual -->
+            <div class="vr-pulse relative w-64 h-64 md:w-80 md:h-80">
+              <div class="absolute inset-0 rounded-3xl bg-gradient-to-br from-neon-blue/20 to-neon-purple/20 border border-neon-blue/20"></div>
+              <div class="absolute inset-4 rounded-2xl bg-dark-700 flex items-center justify-center">
+                <div class="text-center">
+                  <i data-lucide="glasses" class="w-16 h-16 md:w-20 md:h-20 text-neon-blue mx-auto mb-3"></i>
+                  <span class="font-display text-lg md:text-xl font-bold text-white">VR</span>
+                </div>
+              </div>
+              <!-- Floating icons -->
+              <div class="absolute -top-6 -right-6 w-12 h-12 rounded-xl bg-neon-orange/10 border border-neon-orange/20 flex items-center justify-center animate-bounce" style="animation-duration: 3s;">
+                <i data-lucide="gamepad-2" class="w-6 h-6 text-neon-orange"></i>
+              </div>
+              <div class="absolute -bottom-6 -left-6 w-12 h-12 rounded-xl bg-neon-purple/10 border border-neon-purple/20 flex items-center justify-center animate-bounce" style="animation-duration: 4s;">
+                <i data-lucide="wand-2" class="w-6 h-6 text-neon-purple"></i>
+              </div>
+              <div class="absolute top-1/2 -right-10 w-12 h-12 rounded-xl bg-neon-blue/10 border border-neon-blue/20 flex items-center justify-center animate-bounce" style="animation-duration: 3.5s;">
+                <i data-lucide="hand" class="w-6 h-6 text-neon-blue"></i>
+              </div>
+            </div>
+            <!-- Rings -->
+            <div class="absolute inset-0 rounded-full border border-neon-blue/10 animate-spin" style="animation-duration: 20s;"></div>
+            <div class="absolute -inset-8 rounded-full border border-neon-purple/5 animate-spin" style="animation-duration: 30s; animation-direction: reverse;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Team Section -->
+  <section id="team" class="relative py-20 md:py-32">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <!-- Header -->
+      <div class="fade-up text-center mb-16">
+        <span class="text-neon-purple font-display text-sm tracking-widest uppercase mb-4 block">Команда</span>
+        <h2 class="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4">
+          Лисы <span class="bg-gradient-to-r from-neon-purple to-neon-pink bg-clip-text text-transparent">нашей</span> стаи
+        </h2>
+        <p class="text-gray-400 max-w-xl mx-auto">Талантливые люди, которые превращают идеи в реальность</p>
+      </div>
+
+      <!-- Team grid -->
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Member 1 -->
+        <div class="fade-up team-card group cursor-pointer perspective-1000" style="transition-delay: 0.1s;">
+          <div class="team-card-inner relative w-full" style="min-height: 380px;">
+            <!-- Front -->
+            <div class="team-card-front absolute inset-0 rounded-2xl overflow-hidden">
+              <img src="http://static.photos/people/200x200/10" alt="Алексей Волков" class="w-full h-56 object-cover">
+              <div class="p-4 bg-dark-700">
+                <h4 class="text-white font-display font-bold">Алексей Волков</h4>
+                <p class="text-neon-orange text-sm">Founder & Game Director</p>
+              </div>
+            </div>
+            <!-- Back -->
+            <div class="team-card-back absolute inset-0 rounded-2xl bg-gradient-to-br from-dark-600 to-dark-800 border border-neon-orange/20 p-6 flex flex-col items-center justify-center text-center">
+              <i data-lucide="fox" class="w-12 h-12 text-neon-orange mb-4"></i>
+              <h4 class="text-white font-display font-bold mb-1">Алексей Волков</h4>
+              <p class="text-neon-orange text-sm mb-3">Founder & Game Director</p>
+              <p class="text-gray-400 text-sm">10+ лет в геймдеве. Движение — жизнь. Лиса — дух.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Member 2 -->
+        <div class="fade-up team-card group cursor-pointer perspective-1000" style="transition-delay: 0.2s;">
+          <div class="team-card-inner relative w-full" style="min-height: 380px;">
+            <div class="team-card-front absolute inset-0 rounded-2xl overflow-hidden">
+              <img src="http://static.photos/people/200x200/20" alt="Мария Чен" class="w-full h-56 object-cover">
+              <div class="p-4 bg-dark-700">
+                <h4 class="text-white font-display font-bold">Мария Чен</h4>
+                <p class="text-neon-purple text-sm">Lead 3D Artist</p>
+              </div>
+            </div>
+            <div class="team-card-back absolute inset-0 rounded-2xl bg-gradient-to-br from-dark-600 to-dark-800 border border-neon-purple/20 p-6 flex flex-col items-center justify-center text-center">
+              <i data-lucide="palette" class="w-12 h-12 text-neon-purple mb-4"></i>
+              <h4 class="text-white font-display font-bold mb-1">Мария Чен</h4>
+              <p class="text-neon-purple text-sm mb-3">Lead 3D Artist</p>
+              <p class="text-gray-400 text-sm">Создаёт миры из полигонов и воображения. ZBrush — её второй дом.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Member 3 -->
+        <div class="fade-up team-card group cursor-pointer perspective-1000" style="transition-delay: 0.3s;">
+          <div class="team-card-inner relative w-full" style="min-height: 380px;">
+            <div class="team-card-front absolute inset-0 rounded-2xl overflow-hidden">
+              <img src="http://static.photos/people/200x200/30" alt="Дмитрий Коваль" class="w-full h-56 object-cover">
+              <div class="p-4 bg-dark-700">
+                <h4 class="text-white font-display font-bold">Дмитрий Коваль</h4>
+                <p class="text-neon-blue text-sm">VR Engineer</p>
+              </div>
+            </div>
+            <div class="team-card-back absolute inset-0 rounded-2xl bg-gradient-to-br from-dark-600 to-dark-800 border border-neon-blue/20 p-6 flex flex-col items-center justify-center text-center">
+              <i data-lucide="code-2" class="w-12 h-12 text-neon-blue mb-4"></i>
+              <h4 class="text-white font-display font-bold mb-1">Дмитрий Коваль</h4>
+              <p class="text-neon-blue text-sm mb-3">VR Engineer</p>
+              <p class="text-gray-400 text-sm">VR-архитектор. Каждый пиксель на своём месте, каждый кадр — 90fps.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Member 4 -->
+        <div class="fade-up team-card group cursor-pointer perspective-1000" style="transition-delay: 0.4s;">
+          <div class="team-card-inner relative w-full" style="min-height: 380px;">
+            <div class="team-card-front absolute inset-0 rounded-2xl overflow-hidden">
+              <img src="http://static.photos/people/200x200/40" alt="Анна Сорокина" class="w-full h-56 object-cover">
+              <div class="p-4 bg-dark-700">
+                <h4 class="text-white font-display font-bold">Анна Сорокина</h4>
+                <p class="text-neon-pink text-sm">Sound Designer</p>
+              </div>
+            </div>
+            <div class="team-card-back absolute inset-0 rounded-2xl bg-gradient-to-br from-dark-600 to-dark-800 border border-neon-pink/20 p-6 flex flex-col items-center justify-center text-center">
+              <i data-lucide="music" class="w-12 h-12 text-neon-pink mb-4"></i>
+              <h4 class="text-white font-display font-bold mb-1">Анна Сорокина</h4>
+              <p class="text-neon-pink text-sm mb-3">Sound Designer</p>
+              <p class="text-gray-400 text-sm">Звук — это эмоция. Каждая мелодия рассказывает историю.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section id="contact" class="relative py-20 md:py-32">
+    <div class="absolute inset-0 bg-gradient-to-b from-transparent via-dark-800/50 to-dark-900"></div>
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid md:grid-cols-2 gap-12 md:gap-16">
+        <!-- Left info -->
+        <div class="fade-left">
+          <span class="text-neon-orange font-display text-sm tracking-widest uppercase mb-4 block">Контакты</span>
+          <h2 class="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6 leading-tight">
+            Давайте создадим <span class="text-neon-orange glow-orange">что-то</span> вместе
+          </h2>
+          <p class="text-gray-400 leading-relaxed mb-10">
+            Есть идея для игры или VR-проекта? Хотите сотрудничать? Или просто хотите сказать привет — мы всегда на связи.
+          </p>
+
+          <div class="space-y-6">
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 rounded-xl bg-neon-orange/10 flex items-center justify-center shrink-0">
+                <i data-lucide="mail" class="w-5 h-5 text-neon-orange"></i>
+              </div>
+              <div>
+                <div class="text-gray-500 text-sm">Email</div>
+                <div class="text-white font-medium">hello@corefox-team.dev</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 rounded-xl bg-neon-blue/10 flex items-center justify-center shrink-0">
+                <i data-lucide="message-circle" class="w-5 h-5 text-neon-blue"></i>
+              </div>
+              <div>
+                <div class="text-gray-500 text-sm">Discord</div>
+                <div class="text-white font-medium">discord.gg/corefox</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 rounded-xl bg-neon-purple/10 flex items-center justify-center shrink-0">
+                <i data-lucide="map-pin" class="w-5 h-5 text-neon-purple"></i>
+              </div>
+              <div>
+                <div class="text-gray-500 text-sm">Локация</div>
+                <div class="text-white font-medium">Удалённая команда 🌍</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Social links -->
+          <div class="flex items-center gap-4 mt-10">
+            <a href="#" class="w-10 h-10 rounded-lg bg-dark-500 hover:bg-neon-orange/20 border border-dark-500 hover:border-neon-orange/30 flex items-center justify-center transition-all duration-300">
+              <i data-lucide="twitter" class="w-5 h-5 text-gray-400 hover:text-neon-orange"></i>
+            </a>
+            <a href="#" class="w-10 h-10 rounded-lg bg-dark-500 hover:bg-neon-blue/20 border border-dark-500 hover:border-neon-blue/30 flex items-center justify-center transition-all duration-300">
+              <i data-lucide="youtube" class="w-5 h-5 text-gray-400 hover:text-neon-blue"></i>
+            </a>
+            <a href="#" class="w-10 h-10 rounded-lg bg-dark-500 hover:bg-neon-purple/20 border border-dark-500 hover:border-neon-purple/30 flex items-center justify-center transition-all duration-300">
+              <i data-lucide="github" class="w-5 h-5 text-gray-400 hover:text-neon-purple"></i>
+            </a>
+            <a href="#" class="w-10 h-10 rounded-lg bg-dark-500 hover:bg-neon-pink/20 border border-dark-500 hover:border-neon-pink/30 flex items-center justify-center transition-all duration-300">
+              <i data-lucide="instagram" class="w-5 h-5 text-gray-400 hover:text-neon-pink"></i>
+            </a>
+          </div>
+        </div>
+
+        <!-- Right form -->
+        <div class="fade-right">
+          <form id="contact-form" class="gradient-border p-6 md:p-8 space-y-5">
+            <div>
+              <label class="text-gray-400 text-sm mb-2 block">Ваше имя</label>
+              <input type="text" required class="w-full bg-dark-500 border border-dark-500 focus:border-neon-orange/50 rounded-xl px-4 py-3 text-white placeholder-gray-600 outline-none transition-colors duration-300" placeholder="Как к вам обращаться?">
+            </div>
+            <div>
+              <label class="text-gray-400 text-sm mb-2 block">Email</label>
+              <input type="email" required class="w-full bg-dark-500 border border-dark-500 focus:border-neon-orange/50 rounded-xl px-4 py-3 text-white placeholder-gray-600 outline-none transition-colors duration-300" placeholder="your@email.com">
+            </div>
+            <div>
+              <label class="text-gray-400 text-sm mb-2 block">Тип проекта</label>
+              <select class="w-full bg-dark-500 border border-dark-500 focus:border-neon-orange/50 rounded-xl px-4 py-3 text-white outline-none transition-colors duration-300 appearance-none">
+                <option value="">Выберите тип</option>
+                <option value="indie">Инди-игра</option>
+                <option value="vr">VR-приложение</option>
+                <option value="ar">AR-приложение</option>
+                <option value="port">Порт на другую платформу</option>
+                <option value="other">Другое</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-gray-400 text-sm mb-2 block">Сообщение</label>
+              <textarea rows="4" required class="w-full bg-dark-500 border border-dark-500 focus:border-neon-orange/50 rounded-xl px-4 py-3 text-white placeholder-gray-600 outline-none transition-colors duration-300 resize-none" placeholder="Расскажите о вашем проекте..."></textarea>
+            </div>
+            <button type="submit" class="btn-neon w-full px-6 py-4 bg-gradient-to-r from-neon-orange to-neon-purple rounded-xl text-white font-semibold text-lg hover:shadow-xl hover:shadow-neon-orange/25 flex items-center justify-center gap-2">
+              <i data-lucide="send" class="w-5 h-5"></i>
+              Отправить
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="relative border-t border-dark-500 py-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-neon-orange to-neon-purple flex items-center justify-center">
+            <i data-lucide="fox" class="w-4 h-4 text-white"></i>
+          </div>
+          <span class="font-display text-lg font-bold text-white">Core<span class="text-neon-orange">Fox</span>-team</span>
+        </div>
+        <div class="flex items-center gap-6 text-sm text-gray-500">
+          <a href="#" class="hover:text-neon-orange transition-colors">Политика конфиденциальности</a>
+          <a href="#" class="hover:text-neon-orange transition-colors">Условия использования</a>
+        </div>
+        <div class="text-gray-500 text-sm">
+          © 2024 CoreFox-team. Все права защищены. 🦊
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Toast notification -->
+  <div id="toast" class="toast fixed bottom-6 right-6 z-50 bg-dark-700 border border-neon-orange/30 rounded-xl px-6 py-4 flex items-center gap-3 box-glow-orange">
+    <i data-lucide="check-circle" class="w-5 h-5 text-neon-orange"></i>
+    <span class="text-white text-sm font-medium">Сообщение отправлено!</span>
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>
